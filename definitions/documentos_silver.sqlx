@@ -1,0 +1,55 @@
+config {
+  type: "incremental", 
+  schema: "dataset_silver_test",
+  name: "documentos_silver",
+}
+
+INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.documentos_silver` (
+  Empresa,
+  Cod,
+  Centraliza,
+  Atrib1,
+  Atrib2,
+  Atrib3,
+  Atrib4,
+  Atrib5,
+  Atrib6,
+  Cuenta,
+  Aux1,
+  Origen,
+  Clase,
+  Tipo_foliacion,
+  SSMA_TimeStamp,
+  Clase_doc1,
+  Clase_doc2,
+  Clase_doc3,
+  Cod_clase1,
+  Cod_clase2,
+  Cod_clase3,
+  Extracontab1
+)
+SELECT
+  COALESCE(Empresa, "Desconocido") AS Empresa,
+  Cod,
+  SAFE_CAST(Centraliza AS BOOL) AS Centraliza,
+  Atrib1,
+  SAFE_CAST(Atrib2 AS FLOAT64) AS Atrib2,
+  SAFE_CAST(Atrib3 AS BOOL) AS Atrib3,
+  SAFE_CAST(Atrib4 AS BOOL) AS Atrib4,
+  SAFE_CAST(Atrib5 AS BOOL) AS Atrib5,
+  SAFE_CAST(Atrib6 AS BOOL) AS Atrib6,
+  Cuenta,
+  Aux1,
+  Origen,
+  SAFE_CAST(Clase AS INT64) AS Clase,
+  SAFE_CAST(Tipo_foliacion AS INT64) AS Tipo_foliacion,
+  SAFE_CAST(SSMA_TimeStamp AS BYTES) AS SSMA_TimeStamp,
+  Clase_doc1,
+  Clase_doc2,
+  Clase_doc3,
+  SAFE_CAST(Cod_clase1 AS INT64) AS Cod_clase1,
+  SAFE_CAST(Cod_clase2 AS INT64) AS Cod_clase2,
+  SAFE_CAST(Cod_clase3 AS INT64) AS Cod_clase3,
+  SAFE_CAST(Extracontab1 AS FLOAT64) AS Extracontab1
+FROM
+  `hvr-dwh-dev-437001.dataset_bronze.documentos`

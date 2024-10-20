@@ -1,0 +1,51 @@
+config {
+  type: "incremental", 
+  schema: "dataset_silver_test",
+  name: "flex_tipdoc_silver",
+}
+
+INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.flex_tipdoc_silver` (
+  Empresa,
+  Cod,
+  Des,
+  Tipo_analisis,
+  Centraliza,
+  Atrib1,
+  Atrib2,
+  Atrib3,
+  Cuenta,
+  Ccosto,
+  Aux1,
+  Tipdoc,
+  Tipo_bancos,
+  SSMA_TimeStamp
+)
+SELECT
+  Empresa,
+  Cod,
+  Des,
+  Tipo_analisis,
+  CASE
+    WHEN Centraliza = "1" THEN "TRUE"
+    WHEN Centraliza = "0" THEN "FALSE"
+    ELSE NULL
+  END AS Centraliza,
+  Atrib1,
+  CAST(IFNULL(SAFE_CAST(Atrib2 AS FLOAT64), 0.0) AS STRING) AS Atrib2,
+  CASE
+    WHEN Atrib3 = "1" THEN "TRUE" 
+    WHEN Atrib3 = "0" THEN "FALSE"
+    ELSE NULL
+  END AS Atrib3,
+  Cuenta,
+  Ccosto,
+  Aux1,
+  CAST(SAFE_CAST(Tipdoc AS INT64) AS STRING) AS Tipdoc,
+  CASE
+    WHEN Tipo_bancos = "1" THEN "TRUE"
+    WHEN Tipo_bancos = "0" THEN "FALSE"
+    ELSE NULL
+  END AS Tipo_bancos,
+  SSMA_TimeStamp
+FROM
+  `hvr-dwh-dev-437001.dataset_bronze.flex_tipdoc`

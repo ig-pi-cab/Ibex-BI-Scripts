@@ -1,0 +1,47 @@
+config {
+  type: "incremental", 
+  schema: "dataset_silver_test",  
+  name: "bancos",         
+  // uniqueKey: "Cod" 
+}
+
+-- Perform the insert operation with the transformation, replacing NULL values for Empresa
+INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.bancos` (
+  Empresa,
+  Cod,
+  Des,
+  Tipo,
+  RutLeg,
+  Cod_inten,
+  Suc_bco,
+  Comuna,
+  Direccion,
+  Telefono,
+  Contacto,
+  Carg_con,
+  Item,
+  Marca,
+  Cuenta,
+  Log_usr,
+  Log_fec
+)
+SELECT
+  COALESCE(Empresa, "Desconocida") AS Empresa,
+  Cod AS Cod,
+  Des AS Des,
+  Tipo AS Tipo,
+  RutLeg AS RutLeg,
+  Cod_inten AS Cod_inten,
+  Suc_bco AS Suc_bco,
+  Comuna AS Comuna,
+  Direccion AS Direccion,
+  Telefono AS Telefono,
+  Contacto AS Contacto,
+  Carg_con AS Carg_con,
+  CAST(Item AS INT64) AS Item,          -- Transformation: Casting Item to INT64
+  Marca AS Marca,
+  Cuenta AS Cuenta,
+  Log_usr AS Log_usr,
+  CAST(Log_fec AS DATETIME) AS Log_fec  -- Transformation: Casting Log_fec to DATETIME
+FROM
+  `hvr-dwh-dev-437001.dataset_bronze.bancos`

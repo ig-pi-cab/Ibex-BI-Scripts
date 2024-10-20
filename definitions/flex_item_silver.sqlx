@@ -1,0 +1,47 @@
+config {
+  type: "incremental", 
+  schema: "dataset_silver_test",
+  name: "flex_item_silver",
+}
+
+INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.flex_item_silver` (
+  Empresa,
+  Cod,
+  Des,
+  Atrib1,
+  Atrib2,
+  Atrib3,
+  Cuenta,
+  Aux1,
+  SSMA_TimeStamp,
+  Clase_doc1,
+  Clase_doc2,
+  Clase_doc3,
+  Cod_clase1,
+  Cod_clase2,
+  Cod_clase3,
+  Clas1,
+  Clas2,
+  Clas3
+)
+SELECT
+  Empresa,
+  Cod,
+  Des,
+  Atrib1,
+  SAFE_CAST(Atrib2 AS FLOAT64) AS Atrib2,  -- Transforming string to FLOAT64
+  SAFE_CAST(Atrib3 AS BOOL) AS Atrib3,
+  Cuenta,
+  Aux1,
+  SAFE_CAST(SSMA_TimeStamp AS BYTES) AS SSMA_TimeStamp,
+  Clase_doc1,
+  Clase_doc2,
+  Clase_doc3,
+  CAST(Cod_clase1 AS INT64) AS Cod_clase1,
+  CAST(Cod_clase2 AS INT64) AS Cod_clase2,
+  CAST(Cod_clase3 AS INT64) AS Cod_clase3,
+  Clas1,
+  Clas2,
+  Clas3
+FROM
+  `hvr-dwh-dev-437001.dataset_bronze.flex_item`

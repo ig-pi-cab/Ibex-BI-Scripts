@@ -1,0 +1,51 @@
+config {
+  type: "incremental", 
+  schema: "dataset_silver_test",
+  name: "flex_costos_silver",
+}
+
+INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.flex_item_silver` (
+  Empresa,
+  Cod,
+  Des,
+  Atrib1,
+  Atrib2,
+  Atrib3,
+  Cuenta,
+  Aux1,
+  SSMA_TimeStamp,
+  Clase_doc1,
+  Clase_doc2,
+  Clase_doc3,
+  Cod_clase1,
+  Cod_clase2,
+  Cod_clase3,
+  Clas1,
+  Clas2,
+  Clas3,
+  Envio_marca,
+  Envio_fecha
+)
+SELECT
+  Empresa,                                               
+  Cod,                                                   
+  Des,                                                   
+  Atrib1,                                                
+  SAFE_CAST(Atrib2 AS FLOAT64) AS Atrib2,                
+  SAFE_CAST(Atrib3 AS BOOL) AS Atrib3,                  
+  Cuenta,                                                
+  Aux1,                                                  
+  SAFE_CAST(SSMA_TimeStamp AS BYTES) AS SSMA_TimeStamp,  
+  Clase_doc1,                                            
+  Clase_doc2,                                            
+  Clase_doc3,                                            
+  CAST(Cod_clase1 AS INT64) AS Cod_clase1,               
+  CAST(Cod_clase2 AS INT64) AS Cod_clase2,               
+  CAST(Cod_clase3 AS INT64) AS Cod_clase3,               
+  Clas1,                                                 
+  Clas2,
+  Clas3,        
+  SAFE_CAST(Envio_marca AS FLOAT64) AS Envio_marca,
+  SAFE_CAST(Envio_fecha AS DATETIME) AS Envio_fecha 
+FROM
+  `hvr-dwh-dev-437001.dataset_bronze.flex_costos`
