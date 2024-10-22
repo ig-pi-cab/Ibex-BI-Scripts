@@ -1,12 +1,11 @@
 config {
   type: "incremental", 
   schema: "dataset_silver_test",  
-  name: "bancos",         
+  name: "bancos_silver",         
   // uniqueKey: "Cod" 
 }
 
--- Perform the insert operation with the transformation, replacing NULL values for Empresa
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.bancos` (
+INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.bancos_silver` (
   Empresa,
   Cod,
   Des,
@@ -38,10 +37,10 @@ SELECT
   Telefono AS Telefono,
   Contacto AS Contacto,
   Carg_con AS Carg_con,
-  CAST(Item AS INT64) AS Item,          -- Transformation: Casting Item to INT64
+  CAST(Item AS INT64) AS Item,         
   Marca AS Marca,
   Cuenta AS Cuenta,
   Log_usr AS Log_usr,
-  CAST(Log_fec AS DATETIME) AS Log_fec  -- Transformation: Casting Log_fec to DATETIME
+  CAST(Log_fec AS DATETIME) AS Log_fec 
 FROM
   `hvr-dwh-dev-437001.dataset_bronze.bancos`
