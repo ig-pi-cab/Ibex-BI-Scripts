@@ -1,0 +1,42 @@
+config {
+  // Define el tipo de la tabla como incremental, lo que significa que se agregarán nuevos datos o se actualizarán los existentes de forma incremental
+  type: "incremental",
+  schema: "pruebakiara",  // Define el esquema donde residirá la tabla
+  name: "Ctabancos_silver",  // Define el nombre de la tabla
+  bigquery: {
+    partitionBy: "AUDIT_INSERT_DTTM",  // Particiona la tabla por la columna 'AUDIT_INSERT_DTTM' para mejorar el rendimiento
+    updatePartitionFilter: "AUDIT_INSERT_DTTM >= timestamp_sub(current_timestamp(), interval 1 month)"  // Solo actualiza las particiones que tienen datos del último mes
+  },
+  uniqueKey: ["id_Ctabancos"]  // Define la clave única para la tabla para manejar actualizaciones
+}
+
+pre_operations {
+  // Declara una variable 'fecha_insercion_checkpoint' para determinar el punto de inicio para la carga incremental
+  DECLARE AUDIT_INSERT_DTTM_checkpoint DEFAULT (
+    ${when(incremental(),
+    // Si es una carga incremental, establece el punto de control al valor máximo de 'fecha_insercion' de la tabla de destino
+    `SELECT MAX(AUDIT_INSERT_DTTM) FROM ${self()}`,
+    // Si no es una carga incremental (por ejemplo, la primera carga), establece un valor de timestamp por defecto
+    `SELECT TIMESTAMP("2000-01-01")`)}
+  )
+}
+
+SELECT
+  id_Ctabancos,  --Selecciona el identificador único de la cuenta bancaria
+  Cod,  -- Selecciona el código asociado al registro
+  Des,  -- Selecciona la descripción de la cuenta bancaria
+  cuenta_contable,  -- Selecciona la cuenta contable asociada
+  usuario,  -- Selecciona el usuario que realizó la operación
+  SAFE_CAST(fechora AS DATETIME) AS fechora,  -- Convierte 'fechora' a DATETIME, usando SAFE_CAST para manejar valores inválidos
+  Rut_Empresa,  -- Selecciona el identificador de la empresa
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,  -- Registra la fecha y hora de la operación de inserción
+  CASE
+    -- Establece 'AUDIT_UPDATE_DTTM' a la fecha actual si el registro fue modificado, considerando solo la fecha sin la hora
+    WHEN DATE(AUDIT_INSERT_DTTM) < CURRENT_DATE() THEN CURRENT_DATE()
+    ELSE NULL
+  END AS AUDIT_UPDATE_DTTM
+
+FROM
+  `hvr-dwh-dev-437001.pruebakiara.Ctabancos`  -- Tabla de origen desde la cual se están leyendo los datos
+WHERE AUDIT_INSERT_DTTM > AUDIT_INSERT_DTTM_checkpoint  -- Filtro para seleccionar solo los registros que son más recientes que el punto de control
+--WHERE TIMESTAMP_TRUNC(fecha_insercion, DAY) = TIMESTAMP("2024-10-13")  // Filtro opcional para seleccionar registros de un día específico

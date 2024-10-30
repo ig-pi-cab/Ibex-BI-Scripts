@@ -1,0 +1,10 @@
+{
+  "defaultDatabase": "hvr-dwh-dev-437001",
+  "defaultSchema": "dataset_silver_test",
+  "schedule": {
+    "type": "daily",
+    "time": "03:00"
+  },
+  "assertions": [],
+  "warehouse": "bigquery"
+}

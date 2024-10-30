@@ -1,55 +1,41 @@
 config {
-  type: "incremental", 
-  schema: "dataset_silver_test",
-  name: "documentos_silver",
+  type: "incremental",  
+  schema: "dataset_silver_test",  
+  name: "documentos_silver_b",  
+  description: "Copia incremental de nuevos datos desde bronze a silver manejando particiones",
+  tags: ["incremental"]
 }
 
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.documentos_silver` (
-  Empresa,
-  Cod,
-  Centraliza,
-  Atrib1,
-  Atrib2,
-  Atrib3,
-  Atrib4,
-  Atrib5,
-  Atrib6,
-  Cuenta,
-  Aux1,
-  Origen,
-  Clase,
-  Tipo_foliacion,
-  SSMA_TimeStamp,
-  Clase_doc1,
-  Clase_doc2,
-  Clase_doc3,
-  Cod_clase1,
-  Cod_clase2,
-  Cod_clase3,
-  Extracontab1
-)
-SELECT
-  COALESCE(Empresa, "Desconocido") AS Empresa,
-  Cod,
-  SAFE_CAST(Centraliza AS BOOL) AS Centraliza,
-  Atrib1,
-  SAFE_CAST(Atrib2 AS FLOAT64) AS Atrib2,
-  SAFE_CAST(Atrib3 AS BOOL) AS Atrib3,
-  SAFE_CAST(Atrib4 AS BOOL) AS Atrib4,
-  SAFE_CAST(Atrib5 AS BOOL) AS Atrib5,
-  SAFE_CAST(Atrib6 AS BOOL) AS Atrib6,
-  Cuenta,
-  Aux1,
-  Origen,
-  SAFE_CAST(Clase AS INT64) AS Clase,
-  SAFE_CAST(Tipo_foliacion AS INT64) AS Tipo_foliacion,
-  SAFE_CAST(SSMA_TimeStamp AS BYTES) AS SSMA_TimeStamp,
-  Clase_doc1,
-  Clase_doc2,
-  Clase_doc3,
-  SAFE_CAST(Cod_clase1 AS INT64) AS Cod_clase1,
-  SAFE_CAST(Cod_clase2 AS INT64) AS Cod_clase2,
-  SAFE_CAST(Cod_clase3 AS INT64) AS Cod_clase3,
-  SAFE_CAST(Extracontab1 AS FLOAT64) AS Extracontab1
-FROM
-  `hvr-dwh-dev-437001.dataset_bronze.documentos`
+select
+  b.Empresa as Empresa,
+  b.Cod as Cod,
+  cast(b.Centraliza as boolean) as Centraliza,
+  b.Atrib1 as Atrib1,
+  cast(b.Atrib2 as float64) as Atrib2,
+  cast(b.Atrib3 as boolean) as Atrib3,
+  cast(b.Atrib4 as boolean) as Atrib4,
+  cast(b.Atrib5 as boolean) as Atrib5,
+  cast(b.Atrib6 as boolean) as Atrib6,
+  b.Cuenta as Cuenta,
+  b.Aux1 as Aux1,
+  b.Origen as Origen,
+  cast(b.Clase as int64) as Clase,
+  cast(b.Tipo_foliacion as int64) as Tipo_foliacion,
+  cast(b.SSMA_TimeStamp as bytes) as SSMA_TimeStamp,
+  b.Clase_doc1 as Clase_doc1,
+  b.Clase_doc2 as Clase_doc2,
+  b.Clase_doc3 as Clase_doc3,
+  cast(b.Cod_clase1 as int64) as Cod_clase1,
+  cast(b.Cod_clase2 as int64) as Cod_clase2,
+  cast(b.Cod_clase3 as int64) as Cod_clase3,
+  cast(b.Extracontab1 as float64) as Extracontab1,
+  b._PARTITIONTIME as partition_time  -- Uso explícito de _PARTITIONTIME
+from
+  `hvr-dwh-dev-437001.dataset_bronze.documentos_b` b
+left join
+  `hvr-dwh-dev-437001.dataset_silver_test.documentos_silver_b` s
+on
+  b.Cod = s.Cod
+where
+  s.Cod is null
+  and b._PARTITIONTIME between timestamp_sub(current_timestamp(), interval 30 day) and current_timestamp() 

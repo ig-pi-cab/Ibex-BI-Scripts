@@ -1,10 +1,10 @@
 config {
   type: "incremental", 
-  schema: "dataset_silver",
+  schema: "dataset_silver_test",
   name: "planctas_silver",
 }
 
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver.planctas_silver` (
+INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.planctas_silver` (
   Empresa,
   Ano,
   Cuenta,
