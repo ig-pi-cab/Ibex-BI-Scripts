@@ -11,13 +11,13 @@ config {
 }
 
 SELECT
-  CAST(id_Ctabancos AS INT64) AS id_Ctabancos,
+  id_Ctabancos,
   --Selecciona el identificador único de la cuenta bancaria
-  CAST(Cod AS INT64) AS Cod,
+  Cod,
   -- Selecciona el código asociado al registro
   Des,
   -- Selecciona la descripción de la cuenta bancaria
-  CAST(cuenta_contable AS INT64) AS cuenta_contable,
+  cuenta_contable,
   -- Selecciona la cuenta contable asociada
   usuario,
   -- Selecciona el usuario que realizó la operación

@@ -23,11 +23,12 @@ SELECT
   Telefono AS Telefono,
   Contacto AS Contacto,
   Carg_con AS Carg_con,
-  CAST(Item AS INT64) AS Item,
+  Item,
   Marca AS Marca,
   Cuenta AS Cuenta,
   Log_usr AS Log_usr,
-  CAST(Log_fec AS DATETIME) AS Log_fec,
+  SAFE_CAST(Log_fec AS DATETIME) AS Log_fec,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM, 
   CASE
     WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()
     ELSE NULL

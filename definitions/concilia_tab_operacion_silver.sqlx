@@ -1,7 +1,7 @@
   config {
 
     type: "incremental",
-    schema: "dataset_bronze",
+    schema: "dataset_silver",
     name: "concilia_tab_operacion_silver",
     bigquery: {
         partitionBy: "AUDIT_INSERT_DTTM",
@@ -13,7 +13,7 @@
 SELECT
   id_concilia_tab_operacion,
   COALESCE(Empresa, "Unknown") AS Empresa,
-  CAST(FLOOR(SAFE_CAST(Cod AS FLOAT64)) AS INT64) AS Cod,
+  Cod AS Cod,
   Des,
   Debe_haber,
   CASE
@@ -31,10 +31,11 @@ SELECT
   Cuenta,
   Ccosto,
   Aux1,
-  CAST(FLOOR(SAFE_CAST(Tipdoc AS FLOAT64)) AS INT64) AS Tipdoc,
+  SAFE_CAST(FLOOR(SAFE_CAST(Tipdoc AS FLOAT64)) AS INT64) AS Tipdoc,
   Tipo_conciliacion,
   Pide_referencia,
   SAFE_CAST(SSMA_TimeStamp AS BYTES) AS SSMA_TimeStamp,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
   CASE
     WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()
     ELSE NULL
