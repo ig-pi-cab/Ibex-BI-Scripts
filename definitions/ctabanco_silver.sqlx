@@ -1,7 +1,7 @@
 config {
 
     type: "incremental",
-    schema: "dataset_bronze",
+    schema: "dataset_silver",
     name: "ctabancos_silver",
     bigquery: {
         partitionBy: "AUDIT_INSERT_DTTM",
@@ -34,7 +34,7 @@ SELECT
 END
   AS AUDIT_UPDATE_DTTM
 FROM
-  `hvr-dwh-dev-437001.dataset_bronze2.ctabancos`
+  `hvr-dwh-dev-437001.dataset_bronze.ctabancos_bronze`
 WHERE
   AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)
   -- Tabla de origen desde la cual se están leyendo los datos

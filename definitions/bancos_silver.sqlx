@@ -10,7 +10,7 @@ config {
 }
 
 SELECT
-  id_Empresa,
+  ID_Bancos,
   COALESCE(Empresa, "Desconocida") AS Empresa,
   Cod AS Cod,
   Des AS Des,
