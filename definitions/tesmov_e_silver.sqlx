@@ -1,57 +1,16 @@
 config {
-  type: "incremental", 
+  type: "incremental",
   schema: "dataset_silver_test",
   name: "tesmov_e_silver",
+  bigquery: {
+    partitionBy: "AUDIT_INSERT_DTTM",
+    updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
+  },
+  uniqueKey: ["id_tesmov_e"]
 }
 
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.tesmov_e_silver` (
-  Clave1,
-  Rut_Empresa,
-  Ano,
-  Tipo_Doc,
-  Num_Doc,
-  Fecha_Doc,
-  Conjunto,
-  Local,
-  Num_Contable,
-  Fec_Contable,
-  Doc_anulado,
-  Centralizado,
-  Log_Usuario_C,
-  Log_Fecha_C,
-  Log_Usuario,
-  Log_Fecha,
-  Glosa,
-  Lote,
-  Debe,
-  Haber,
-  Debe_ad,
-  Haber_ad,
-  Editado,
-  Usuario,
-  Control1,
-  Nexo_modulo,
-  Hvrnet_ip,
-  Hvrnet_pasaporte,
-  Clase_doc1,
-  Clase_doc2,
-  Clase_doc3,
-  Cod_clase1,
-  Cod_clase2,
-  Cod_clase3,
-  Envio_marca,
-  Envio_fecha,
-  FolioAdjunto,
-  Flujo,
-  Moneda_ingreso,
-  Paridad_ingreso,
-  Tip_contable,
-  Tip_reg,
-  FolioUnico,
-  FolioOrigen,
-  NotaIntegracion
-)
 SELECT
+  CAST(id_tesmov_e AS INT64) AS id_tesmov_e,
   Clave1,
   Rut_Empresa,
   Ano,
@@ -96,6 +55,10 @@ SELECT
   Tip_reg,
   SAFE_CAST(FolioUnico AS FLOAT64) AS FolioUnico,
   FolioOrigen,
-  NotaIntegracion
+  NotaIntegracion,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
+  CASE WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP() ELSE NULL END AS AUDIT_UPDATE_DTTM
 FROM
-  `hvr-dwh-dev-437001.dataset_bronze.tesmov_e`
+  `hvr-dwh-dev-437001.dataset_bronze.tesmov_e_bronze`
+WHERE
+  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)

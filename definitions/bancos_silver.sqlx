@@ -1,30 +1,16 @@
 config {
-  type: "incremental", 
-  schema: "dataset_silver_test",  
-  name: "bancos_silver",         
-  // uniqueKey: "Cod" 
+    type: "incremental",
+    schema: "dataset_silver",
+    name: "bancos_silver",
+    bigquery: {
+        partitionBy: "AUDIT_INSERT_DTTM",
+        updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)"
+    },
+    uniqueKey: ["id_Bancos"]
 }
 
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.bancos_silver` (
-  Empresa,
-  Cod,
-  Des,
-  Tipo,
-  RutLeg,
-  Cod_inten,
-  Suc_bco,
-  Comuna,
-  Direccion,
-  Telefono,
-  Contacto,
-  Carg_con,
-  Item,
-  Marca,
-  Cuenta,
-  Log_usr,
-  Log_fec
-)
 SELECT
+  id_Empresa,
   COALESCE(Empresa, "Desconocida") AS Empresa,
   Cod AS Cod,
   Des AS Des,
@@ -37,10 +23,17 @@ SELECT
   Telefono AS Telefono,
   Contacto AS Contacto,
   Carg_con AS Carg_con,
-  CAST(Item AS INT64) AS Item,         
+  CAST(Item AS INT64) AS Item,
   Marca AS Marca,
   Cuenta AS Cuenta,
   Log_usr AS Log_usr,
-  CAST(Log_fec AS DATETIME) AS Log_fec 
+  CAST(Log_fec AS DATETIME) AS Log_fec,
+  CASE
+    WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()
+    ELSE NULL
+END
+  AS AUDIT_UPDATE_DTTM
 FROM
-  `hvr-dwh-dev-437001.dataset_bronze.bancos`
+  `dataset_bronze.bancos_bronze`
+WHERE
+  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)

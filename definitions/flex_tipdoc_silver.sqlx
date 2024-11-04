@@ -1,26 +1,16 @@
 config {
-  type: "incremental", 
+  type: "incremental",
   schema: "dataset_silver_test",
   name: "flex_tipdoc_silver",
+  bigquery: {
+    partitionBy: "AUDIT_INSERT_DTTM",
+    updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
+  },
+  uniqueKey: ["id_flex_tipdoc"]
 }
 
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.flex_tipdoc_silver` (
-  Empresa,
-  Cod,
-  Des,
-  Tipo_analisis,
-  Centraliza,
-  Atrib1,
-  Atrib2,
-  Atrib3,
-  Cuenta,
-  Ccosto,
-  Aux1,
-  Tipdoc,
-  Tipo_bancos,
-  SSMA_TimeStamp
-)
 SELECT
+  CAST(id_flex_tipdoc AS INT64) AS id_flex_tipdoc,
   Empresa,
   Cod,
   Des,
@@ -46,6 +36,13 @@ SELECT
     WHEN Tipo_bancos = "0" THEN "FALSE"
     ELSE NULL
   END AS Tipo_bancos,
-  SSMA_TimeStamp
+  SSMA_TimeStamp,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
+  CASE
+    WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()
+    ELSE NULL
+  END AS AUDIT_UPDATE_DTTM
 FROM
-  `hvr-dwh-dev-437001.dataset_bronze.flex_tipdoc`
+  `hvr-dwh-dev-437001.dataset_bronze.flex_tipdoc_bronze`
+WHERE
+  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)

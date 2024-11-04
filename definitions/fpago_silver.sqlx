@@ -1,40 +1,16 @@
 config {
-  type: "incremental", 
+  type: "incremental",
   schema: "dataset_silver_test",
   name: "fpago_silver",
+  bigquery: {
+    partitionBy: "AUDIT_INSERT_DTTM",
+    updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
+  },
+  uniqueKey: ["id_fpago"]
 }
 
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.fpago_silver` (
-  Empresa,
-  Cod,
-  Des,
-  Cuenta,
-  Item,
-  CCosto,
-  Aux1,
-  Tipo,
-  Debe_haber,
-  Factor,
-  Banco,
-  Pide_ctabanco,
-  Pide_Nro_doc,
-  Pide_vence,
-  Pide_Fecha_uf,
-  Pide_rut,
-  Pide_Tipo_Docto,
-  Pide_refe,
-  Pide_crednum,
-  Pide_credfec,
-  Pide_credctacte,
-  Atrib1,
-  Atrib2,
-  Log_fecha,
-  Log_user,
-  Cod_cb,
-  Pide_detalle_Productos,
-  Gestionacheque
-)
 SELECT
+  CAST(id_fpago AS INT64) AS id_fpago,
   Empresa,
   Cod,
   Des,
@@ -45,68 +21,28 @@ SELECT
   Tipo,
   Debe_haber,
   SAFE_CAST(Factor AS INT64) AS Factor,
-    CASE
-    WHEN Banco = "1" THEN TRUE
-    WHEN Banco = "0" THEN FALSE
-    ELSE NULL
-    END AS Banco,    
-    CASE
-    WHEN Pide_ctabanco = "1" THEN TRUE
-    WHEN Pide_ctabanco = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_ctabanco,
-    CASE
-    WHEN Pide_Nro_doc = "1" THEN TRUE
-    WHEN Pide_Nro_doc = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_Nro_doc,
-    CASE
-    WHEN Pide_vence = "1" THEN TRUE
-    WHEN Pide_vence = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_vence,
-    CASE
-    WHEN Pide_Fecha_uf = "1" THEN TRUE
-    WHEN Pide_Fecha_uf = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_Fecha_uf,  
-    CASE
-    WHEN Pide_rut = "1" THEN TRUE
-    WHEN Pide_rut = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_rut, 
-    CASE
-    WHEN Pide_Tipo_Docto = "1" THEN TRUE
-    WHEN Pide_Tipo_Docto = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_Tipo_Docto,
-    CASE
-    WHEN Pide_refe = "1" THEN TRUE
-    WHEN Pide_refe = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_refe,
-    CASE
-    WHEN Pide_crednum = "1" THEN TRUE
-    WHEN Pide_crednum = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_crednum,
-    CASE
-    WHEN Pide_credfec = "1" THEN TRUE
-    WHEN Pide_credfec = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_credfec,
-    CASE
-    WHEN Pide_credctacte = "1" THEN TRUE
-    WHEN Pide_credctacte = "0" THEN FALSE
-    ELSE NULL
-    END AS Pide_credctacte,
+  CASE WHEN Banco = "1" THEN TRUE WHEN Banco = "0" THEN FALSE ELSE NULL END AS Banco,    
+  CASE WHEN Pide_ctabanco = "1" THEN TRUE WHEN Pide_ctabanco = "0" THEN FALSE ELSE NULL END AS Pide_ctabanco,
+  CASE WHEN Pide_Nro_doc = "1" THEN TRUE WHEN Pide_Nro_doc = "0" THEN FALSE ELSE NULL END AS Pide_Nro_doc,
+  CASE WHEN Pide_vence = "1" THEN TRUE WHEN Pide_vence = "0" THEN FALSE ELSE NULL END AS Pide_vence,
+  CASE WHEN Pide_Fecha_uf = "1" THEN TRUE WHEN Pide_Fecha_uf = "0" THEN FALSE ELSE NULL END AS Pide_Fecha_uf,  
+  CASE WHEN Pide_rut = "1" THEN TRUE WHEN Pide_rut = "0" THEN FALSE ELSE NULL END AS Pide_rut, 
+  CASE WHEN Pide_Tipo_Docto = "1" THEN TRUE WHEN Pide_Tipo_Docto = "0" THEN FALSE ELSE NULL END AS Pide_Tipo_Docto,
+  CASE WHEN Pide_refe = "1" THEN TRUE WHEN Pide_refe = "0" THEN FALSE ELSE NULL END AS Pide_refe,
+  CASE WHEN Pide_crednum = "1" THEN TRUE WHEN Pide_crednum = "0" THEN FALSE ELSE NULL END AS Pide_crednum,
+  CASE WHEN Pide_credfec = "1" THEN TRUE WHEN Pide_credfec = "0" THEN FALSE ELSE NULL END AS Pide_credfec,
+  CASE WHEN Pide_credctacte = "1" THEN TRUE WHEN Pide_credctacte = "0" THEN FALSE ELSE NULL END AS Pide_credctacte,
   Atrib1,
   SAFE_CAST(Atrib2 AS FLOAT64) AS Atrib2,
   SAFE_CAST(Log_fecha AS DATETIME) AS Log_fecha,
   Log_user,
   SAFE_CAST(Cod_cb AS INT64) AS Cod_cb,
   SAFE_CAST(Pide_detalle_Productos AS INT64) AS Pide_detalle_Productos,
-  SAFE_CAST(Gestionacheque AS FLOAT64) AS Gestionacheque
+  SAFE_CAST(Gestionacheque AS FLOAT64) AS Gestionacheque,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
+  CASE WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP() ELSE NULL END AS AUDIT_UPDATE_DTTM
 FROM
-  `hvr-dwh-dev-437001.dataset_bronze.fpago`
-WHERE Empresa IS NOT NULL
+  `hvr-dwh-dev-437001.dataset_bronze.fpago_bronze`
+WHERE
+  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)
+  AND Empresa IS NOT NULL

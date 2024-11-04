@@ -1,159 +1,43 @@
 config {
-  type: "incremental", 
+  type: "incremental",
   schema: "dataset_silver_test",
   name: "planctas_silver",
+  bigquery: {
+    partitionBy: "AUDIT_INSERT_DTTM",
+    updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
+  },
+  uniqueKey: ["id_planctas"]
 }
 
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.planctas_silver` (
-  Empresa,
-  Ano,
-  Cuenta,
-  Des,
-  Imputacion,
-  Flujo,
-  Bimoneda,
-  Moneda,
-  Pide_rut,
-  Pide_tipdoc,
-  Pide_numdoc,
-  Pide_vence,
-  Pide_banco,
-  Pide_ctabanco,
-  Pide_tipdoc_cb,
-  Pide_numdoc_cb,
-  Pide_vence_cb,
-  Pide_item,
-  Pide_ccosto,
-  Nominas,
-  Flexcon,
-  Tipanal,
-  Alias,
-  Clasificador1,
-  Clasificador2,
-  Clasificador3,
-  Flujo_efectivo,
-  Grupo1,
-  Grupo2,
-  Activo,
-  Centro_desde,
-  Centro_hasta,
-  Item_desde,
-  Item_hasta,
-  Clas1_desde,
-  Clas1_hasta,
-  Clase1,
-  Clase2,
-  Clase3,
-  SSMA_TimeStamp,
-  Presupuesto,
-  Hvrnet_ip,
-  Hvrnet_pasaporte,
-  Des2,
-  Aplica_Diftc,
-  Cuenta_Diftc_ganancia,
-  Cuenta_Diftc_perdida,
-  Aplica_Masivo,
-  Log_Usuario_c,
-  Log_fecha_c,
-  Log_Usuario,
-  Log_Fecha,
-  Acciones,
-  Pide_glosalin2,
-  Moneda_op,
-  Incluye_diftc
-)
 SELECT
+  CAST(id_planctas AS INT64) AS id_planctas,
   Empresa,
   Ano,
   Cuenta,
   Des,
-  CASE
-  WHEN Imputacion = "1" THEN TRUE
-  WHEN Imputacion = "0" THEN FALSE
-  ELSE NULL
-  END AS Imputacion,
-  CASE
-  WHEN Flujo = "1" THEN TRUE
-  WHEN Flujo = "0" THEN FALSE
-  ELSE NULL
-  END AS Flujo,
-  CASE
-  WHEN Bimoneda = "1" THEN TRUE
-  WHEN Bimoneda = "0" THEN FALSE
-  ELSE NULL
-  END AS Bimoneda,
+  CASE WHEN Imputacion = "1" THEN TRUE WHEN Imputacion = "0" THEN FALSE ELSE NULL END AS Imputacion,
+  CASE WHEN Flujo = "1" THEN TRUE WHEN Flujo = "0" THEN FALSE ELSE NULL END AS Flujo,
+  CASE WHEN Bimoneda = "1" THEN TRUE WHEN Bimoneda = "0" THEN FALSE ELSE NULL END AS Bimoneda,
   Moneda,
-  CASE
-  WHEN Pide_rut = "1" THEN TRUE
-  WHEN Pide_rut = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_rut,
-  CASE
-  WHEN Pide_tipdoc = "1" THEN TRUE
-  WHEN Pide_tipdoc = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_tipdoc,
-  CASE
-  WHEN Pide_numdoc = "1" THEN TRUE
-  WHEN Pide_numdoc = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_numdoc,
-  CASE
-  WHEN Pide_vence = "1" THEN TRUE
-  WHEN Pide_vence = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_vence,
-  CASE
-  WHEN Pide_banco = "1" THEN TRUE
-  WHEN Pide_banco = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_banco,
-  CASE
-  WHEN Pide_ctabanco = "1" THEN TRUE
-  WHEN Pide_ctabanco = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_ctabanco,
-  CASE
-  WHEN Pide_tipdoc_cb = "1" THEN TRUE
-  WHEN Pide_tipdoc_cb = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_tipdoc_cb,
-  CASE
-  WHEN Pide_numdoc_cb = "1" THEN TRUE
-  WHEN Pide_numdoc_cb = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_numdoc_cb,
-  CASE
-  WHEN Pide_vence_cb = "1" THEN TRUE
-  WHEN Pide_vence_cb = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_vence_cb,
-  CASE
-  WHEN Pide_item = "1" THEN TRUE
-  WHEN Pide_item = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_item,
-  CASE
-  WHEN Pide_ccosto = "1" THEN TRUE
-  WHEN Pide_ccosto = "0" THEN FALSE
-  ELSE NULL
-  END AS Pide_ccosto,
-  CASE
-  WHEN Nominas = "1" THEN TRUE
-  WHEN Nominas = "0" THEN FALSE
-  ELSE NULL
-  END AS Nominas,
+  CASE WHEN Pide_rut = "1" THEN TRUE WHEN Pide_rut = "0" THEN FALSE ELSE NULL END AS Pide_rut,
+  CASE WHEN Pide_tipdoc = "1" THEN TRUE WHEN Pide_tipdoc = "0" THEN FALSE ELSE NULL END AS Pide_tipdoc,
+  CASE WHEN Pide_numdoc = "1" THEN TRUE WHEN Pide_numdoc = "0" THEN FALSE ELSE NULL END AS Pide_numdoc,
+  CASE WHEN Pide_vence = "1" THEN TRUE WHEN Pide_vence = "0" THEN FALSE ELSE NULL END AS Pide_vence,
+  CASE WHEN Pide_banco = "1" THEN TRUE WHEN Pide_banco = "0" THEN FALSE ELSE NULL END AS Pide_banco,
+  CASE WHEN Pide_ctabanco = "1" THEN TRUE WHEN Pide_ctabanco = "0" THEN FALSE ELSE NULL END AS Pide_ctabanco,
+  CASE WHEN Pide_tipdoc_cb = "1" THEN TRUE WHEN Pide_tipdoc_cb = "0" THEN FALSE ELSE NULL END AS Pide_tipdoc_cb,
+  CASE WHEN Pide_numdoc_cb = "1" THEN TRUE WHEN Pide_numdoc_cb = "0" THEN FALSE ELSE NULL END AS Pide_numdoc_cb,
+  CASE WHEN Pide_vence_cb = "1" THEN TRUE WHEN Pide_vence_cb = "0" THEN FALSE ELSE NULL END AS Pide_vence_cb,
+  CASE WHEN Pide_item = "1" THEN TRUE WHEN Pide_item = "0" THEN FALSE ELSE NULL END AS Pide_item,
+  CASE WHEN Pide_ccosto = "1" THEN TRUE WHEN Pide_ccosto = "0" THEN FALSE ELSE NULL END AS Pide_ccosto,
+  CASE WHEN Nominas = "1" THEN TRUE WHEN Nominas = "0" THEN FALSE ELSE NULL END AS Nominas,
   Flexcon,
   Tipanal,
   SAFE_CAST(Alias AS INT64) AS Alias,
   Clasificador1,
   Clasificador2,
   Clasificador3,
-  CASE
-  WHEN Flujo_efectivo = "1" THEN TRUE
-  WHEN Flujo_efectivo = "0" THEN FALSE
-  ELSE NULL
-  END AS Flujo_efectivo,
+  CASE WHEN Flujo_efectivo = "1" THEN TRUE WHEN Flujo_efectivo = "0" THEN FALSE ELSE NULL END AS Flujo_efectivo,
   Grupo1,
   Grupo2,
   Activo,
@@ -182,6 +66,10 @@ SELECT
   SAFE_CAST(Acciones AS INT64) AS Acciones,
   SAFE_CAST(Pide_glosalin2 AS INT64) AS Pide_glosalin2,
   Moneda_op,
-  SAFE_CAST(Incluye_diftc AS INT64) AS Incluye_diftc
+  SAFE_CAST(Incluye_diftc AS INT64) AS Incluye_diftc,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
+  CASE WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP() ELSE NULL END AS AUDIT_UPDATE_DTTM
 FROM
-  `hvr-dwh-dev-437001.dataset_bronze.planctas`
+  `hvr-dwh-dev-437001.dataset_bronze.planctas_bronze`
+WHERE
+  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)

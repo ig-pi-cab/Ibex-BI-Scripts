@@ -1,69 +1,19 @@
 config {
-  type: "incremental", 
+  type: "incremental",
   schema: "dataset_silver_test",
   name: "flex_rut_silver",
+  bigquery: {
+    partitionBy: "AUDIT_INSERT_DTTM",
+    updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
+  },
+  uniqueKey: ["id_flex_rut"]
 }
-INSERT INTO `hvr-dwh-dev-437001.dataset_silver_test.flex_rut_silver` (
-  Empresa,
-  rut,
-  nombre,
-  giro,
-  direccion,
-  poblacion,
-  comuna,
-  telefono,
-  fax,
-  email,
-  estado_registro,
-  Log_User_c,
-  Log_User,
-  Log_Fec_c,
-  Log_fec,
-  Tipo,
-  cod_bco,
-  cuenta_bco,
-  cod_banco,
-  tipo_bco,
-  ctacte_banco,
-  hvrnet_ip,
-  hvrnet_pasaporte,
-  Clase_doc1,
-  Clase_doc2,
-  Clase_doc3,
-  Cod_clase1,
-  Cod_clase2,
-  Cod_clase3,
-  Codigo2,
-  envio_marca,
-  envio_fecha,
-  Mail,
-  Mail2,
-  Tipo_bco2,
-  Cod_banco2,
-  cuenta_bco2,
-  rut_destinatario,
-  nom_destinatario,
-  rut_destinatario2,
-  nom_destinatario2,
-  Cuenta_neto,
-  cod_RUT,
-  Rut_legal,
-  Cuenta_netoVentas,
-  Centro_compras,
-  Centro_ventas,
-  Item_compras,
-  Item_ventas,
-  Clas1_compras,
-  Clas1_ventas,
-  Dias_ventas,
-  Dias_compras,
-  Cuenta_totdoc_compras,
-  Cuenta_totdoc_ventas
-)
+
 SELECT
+  CAST(id_flex_rut AS INT64) AS id_flex_rut,
   Empresa,
   rut,
-  COALESCE('Desconocido',nombre),
+  COALESCE('Desconocido', nombre) AS nombre,
   giro,
   direccion,
   poblacion,
@@ -115,6 +65,13 @@ SELECT
   CAST(Dias_ventas AS INT64) AS Dias_ventas,
   CAST(Dias_compras AS INT64) AS Dias_compras,
   Cuenta_totdoc_compras,
-  Cuenta_totdoc_ventas
+  Cuenta_totdoc_ventas,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
+  CASE
+    WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()
+    ELSE NULL
+  END AS AUDIT_UPDATE_DTTM
 FROM
-  `hvr-dwh-dev-437001.dataset_bronze.flex_rut`
+  `hvr-dwh-dev-437001.dataset_bronze.flex_rut_bronze`
+WHERE
+  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)
