@@ -3,7 +3,7 @@ config {
   schema: "dataset_silver_test",
   name: "flex_tipdoc_silver",
   bigquery: {
-    partitionBy: "AUDIT_INSERT_DTTM",
+    partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
     updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
   },
   uniqueKey: ["id_flex_tipdoc"]

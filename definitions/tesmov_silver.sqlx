@@ -3,14 +3,14 @@ config {
   schema: "dataset_silver_test",
   name: "tesmov_silver",
   bigquery: {
-    partitionBy: "AUDIT_INSERT_DTTM",
+    partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
     updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
   },
   uniqueKey: ["id_tesmov"]
 }
 
 SELECT
-  CAST(id_tesmov AS INT64) AS id_tesmov,
+  id_tesmov,
   SAFE_CAST(Clave1 AS INT64) AS Clave1,
   Rut_Empresa,
   Ano,

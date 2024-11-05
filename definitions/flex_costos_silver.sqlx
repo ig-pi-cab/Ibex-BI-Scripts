@@ -3,14 +3,14 @@ config {
   schema: "dataset_silver_test",
   name: "flex_costos_silver",
   bigquery: {
-    partitionBy: "AUDIT_INSERT_DTTM",
+    partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
     updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
   },
   uniqueKey: ["id_flex_costos"]
 }
 
 SELECT
-  CAST(id_flex_costos AS INT64) AS id_flex_costos,
+  id_flex_costos,
   Empresa,                                               
   Cod,                                                   
   Des,                                                   
@@ -23,9 +23,9 @@ SELECT
   Clase_doc1,                                            
   Clase_doc2,                                            
   Clase_doc3,                                            
-  CAST(Cod_clase1 AS INT64) AS Cod_clase1,               
-  CAST(Cod_clase2 AS INT64) AS Cod_clase2,               
-  CAST(Cod_clase3 AS INT64) AS Cod_clase3,               
+  SAFE_CAST(Cod_clase1 AS INT64) AS Cod_clase1,               
+  SAFE_CAST(Cod_clase2 AS INT64) AS Cod_clase2,               
+  SAFE_CAST(Cod_clase3 AS INT64) AS Cod_clase3,               
   Clas1,                                                 
   Clas2,
   Clas3,        
