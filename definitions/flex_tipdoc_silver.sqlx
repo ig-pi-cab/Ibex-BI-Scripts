@@ -1,6 +1,6 @@
 config {
   type: "incremental",
-  schema: "dataset_silver_test",
+  schema: "dataset_silver",
   name: "flex_tipdoc_silver",
   bigquery: {
     partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
@@ -10,33 +10,33 @@ config {
 }
 
 SELECT
-  CAST(id_flex_tipdoc AS INT64) AS id_flex_tipdoc,
+  id_flex_tipdoc,
   Empresa,
   Cod,
   Des,
   Tipo_analisis,
   CASE
-    WHEN Centraliza = "1" THEN "TRUE"
-    WHEN Centraliza = "0" THEN "FALSE"
+    WHEN Centraliza = "1" THEN TRUE
+    WHEN Centraliza = "0" THEN FALSE
     ELSE NULL
   END AS Centraliza,
   Atrib1,
-  CAST(IFNULL(SAFE_CAST(Atrib2 AS FLOAT64), 0.0) AS STRING) AS Atrib2,
+  SAFE_CAST(Atrib2 AS FLOAT64) AS Atrib2,
   CASE
-    WHEN Atrib3 = "1" THEN "TRUE" 
-    WHEN Atrib3 = "0" THEN "FALSE"
+    WHEN Atrib3 = "1" THEN TRUE 
+    WHEN Atrib3 = "0" THEN FALSE
     ELSE NULL
   END AS Atrib3,
   Cuenta,
   Ccosto,
   Aux1,
-  CAST(SAFE_CAST(Tipdoc AS INT64) AS STRING) AS Tipdoc,
+  SAFE_CAST(Tipdoc AS INT64) AS Tipdoc,
   CASE
-    WHEN Tipo_bancos = "1" THEN "TRUE"
-    WHEN Tipo_bancos = "0" THEN "FALSE"
+    WHEN Tipo_bancos = "1" THEN TRUE
+    WHEN Tipo_bancos = "0" THEN FALSE
     ELSE NULL
   END AS Tipo_bancos,
-  SSMA_TimeStamp,
+  SAFE_CAST(SSMA_TimeStamp AS BYTES) AS SSMA_TimeStamp,
   CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
   CASE
     WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()

@@ -1,9 +1,9 @@
 config {
   type: "incremental",
-  schema: "dataset_silver_test",
+  schema: "dataset_silver",
   name: "tesmov_silver",
   bigquery: {
-    partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
+    partitionBy: "AUDIT_INSERT_DTTM",
     updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
   },
   uniqueKey: ["id_tesmov"]
@@ -11,7 +11,7 @@ config {
 
 SELECT
   id_tesmov,
-  SAFE_CAST(Clave1 AS INT64) AS Clave1,
+    SAFE_CAST(Clave1 AS INT64) AS Clave1,
   Rut_Empresa,
   Ano,
   Tipo_Doc,
@@ -51,9 +51,9 @@ SELECT
   Item,
   SAFE_CAST(Num_Contable AS INT64) AS Num_Contable,
   SAFE_CAST(Fec_Contable AS DATETIME) AS Fec_Contable,
-  SAFE_CAST(Doc_anulado AS BOOL) AS Doc_anulado,
-  SAFE_CAST(Lin_anulado AS BOOL) AS Lin_anulado,
-  SAFE_CAST(Centralizado AS BOOL) AS Centralizado,
+  Doc_anulado,
+  Lin_anulado,
+  Centralizado,
   Log_Usuario_C,
   SAFE_CAST(Log_Fecha_C AS DATETIME) AS Log_Fecha_C,
   Log_Usuario,
@@ -61,25 +61,25 @@ SELECT
   Marcado,
   Glosa,
   Referencia1,
-  SAFE_CAST(Lote AS INT64) AS Lote,
+  Lote,
   Cod_clasificador1,
   Cod_clasificador2,
   Cod_clasificador3,
-  SAFE_CAST(Cod_clase1 AS INT64) AS Cod_clase1,
-  SAFE_CAST(Cod_clase2 AS INT64) AS Cod_clase2,
-  SAFE_CAST(Cod_clase3 AS INT64) AS Cod_clase3,
+  Cod_clase1,
+  Cod_clase2,
+  Cod_clase3,
   SAFE_CAST(Ref_Tipo AS FLOAT64) AS Ref_Tipo,
   SAFE_CAST(Ref_Cod AS FLOAT64) AS Ref_Cod,
   SAFE_CAST(Ref_Origen AS FLOAT64) AS Ref_Origen,
   Ref_Rut,
-  SAFE_CAST(Ref_Numero AS FLOAT64) AS Ref_Numero,
-  SAFE_CAST(Ref_Periodo AS FLOAT64) AS Ref_Periodo,
-  SAFE_CAST(Nexo_modulo AS FLOAT64) AS Nexo_modulo,
+  Ref_Numero,
+   Ref_Periodo,
+ Nexo_modulo,
   SAFE_CAST(Acciones_fecha AS DATETIME) AS Acciones_fecha,
   Acciones_tipo,
-  SAFE_CAST(Acciones_cant AS NUMERIC) AS Acciones_cant,
-  SAFE_CAST(Acciones_punit AS NUMERIC) AS Acciones_punit,
-  SAFE_CAST(Acciones_factor AS INT64) AS Acciones_factor,
+  Acciones_cant,
+  Acciones_punit,
+  Acciones_factor,
   SAFE_CAST(Acciones_ref_numdoc AS FLOAT64) AS Acciones_ref_numdoc,
   Acciones_ref_tipdoc,
   SAFE_CAST(Acciones_ref_linea AS FLOAT64) AS Acciones_ref_linea,
@@ -109,6 +109,6 @@ SELECT
   CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
   CASE WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP() ELSE NULL END AS AUDIT_UPDATE_DTTM
 FROM
-  `dataset_bronze.tesmov_bronze`
+  `hvr-dwh-dev-437001.dataset_bronze.tesmov_bronze`
 WHERE
   AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)

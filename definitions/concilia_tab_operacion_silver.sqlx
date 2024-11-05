@@ -1,5 +1,4 @@
   config {
-
     type: "incremental",
     schema: "dataset_silver",
     name: "concilia_tab_operacion_silver",

@@ -1,9 +1,9 @@
 config {
   type: "incremental",
-  schema: "dataset_silver_test",
+  schema: "dataset_silver",
   name: "flex_costos_silver",
   bigquery: {
-    partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
+    partitionBy: "AUDIT_INSERT_DTTM",
     updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
   },
   uniqueKey: ["id_flex_costos"]
@@ -19,18 +19,18 @@ SELECT
   SAFE_CAST(Atrib3 AS BOOL) AS Atrib3,                   
   Cuenta,                                                
   Aux1,                                                  
-  SAFE_CAST(SSMA_TimeStamp AS BYTES) AS SSMA_TimeStamp,  
+  SSMA_TimeStamp,  
   Clase_doc1,                                            
   Clase_doc2,                                            
   Clase_doc3,                                            
-  SAFE_CAST(Cod_clase1 AS INT64) AS Cod_clase1,               
-  SAFE_CAST(Cod_clase2 AS INT64) AS Cod_clase2,               
-  SAFE_CAST(Cod_clase3 AS INT64) AS Cod_clase3,               
+  Cod_clase1,               
+  Cod_clase2,               
+  Cod_clase3,               
   Clas1,                                                 
   Clas2,
   Clas3,        
-  SAFE_CAST(Envio_marca AS FLOAT64) AS Envio_marca,
-  SAFE_CAST(Envio_fecha AS DATETIME) AS Envio_fecha,
+  Envio_marca,
+  Envio_fecha,
   CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
   CASE
     WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()

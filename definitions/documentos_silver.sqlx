@@ -1,6 +1,6 @@
 config {
   type: "incremental",
-  schema: "dataset_silver_test",
+  schema: "dataset_silver",
   name: "documentos_silver",
   bigquery: {
     partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
