@@ -9,7 +9,7 @@ config {
   uniqueKey: ["id_flex_item"]
 }
 
-SELECT
+SELECTA
   id_flex_item,
   Empresa,
   Cod,
