@@ -1,5 +1,5 @@
 defaultProject: hvr-dwh-dev-437001
 defaultLocation: us-central1
-defaultDataset: dataform
-defaultAssertionDataset: dataform_assertions
+defaultDataset: dataset_silver
+defaultAssertionDataset: dataset_silver_assertions
 dataformCoreVersion: 3.0.0
