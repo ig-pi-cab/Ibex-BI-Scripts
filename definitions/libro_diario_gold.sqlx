@@ -9,10 +9,104 @@ config {
   uniqueKey: ["cabeza_clave1", "detalle_clave1", "Tipo_Doc_Encabezado", "Num_Doc", "Linea"]
 }
 
-SELECT 
-  clave1, 
-  SAFE_CAST(clave1 AS STRING) AS clave1_as_string,
-  SAFE_CAST(clave1 AS INT64) AS clave1_as_int64
-FROM 
-  `dataset_silver.tesmov_e_silver`
-LIMIT 10
+SELECT
+  CURRENT_TIMESTAMP() AS FechaReporte,
+
+  -- Identificadores principales
+  Tesmov_e.clave1 AS cabeza_clave1,
+  Tesmov.clave1 AS detalle_clave1,
+  Tesmov_e.ano AS Ejercicio,
+
+  -- Diferenciación de columnas duplicadas
+  Tesmov_e.Tipo_Doc AS Tipo_Doc_Encabezado,  -- De TESMOV_E
+  Tesmov.Tipo_Doc AS Tipo_Doc_Detalle,       -- De TESMOV
+
+  Tesmov_e.Num_Doc AS Num_Doc,
+  Tesmov.linea AS Linea,
+  DATETIME(Tesmov_e.Fecha_Doc) AS Fecha_Doc,
+
+  -- Detalles de cuentas
+  Tesmov.Cuenta AS Cuenta,
+  Planctas.Des AS Cuenta_des,
+  Tesmov.Debe AS Debe,
+  Tesmov.Haber AS Haber,
+  Tesmov.Debe - Tesmov.Haber AS Saldo,
+  Tesmov.Concepto AS Concepto,
+
+  -- Información de documentos
+  Tesmov.Rut AS Rut,
+  Tesmov.Tipdoc_ctacte AS Tipdoc,
+  Tesmov.Numdoc_ctacte AS Numdoc,
+  TIMESTAMP(Tesmov.Vence_ctacte) AS Vence,
+  Tesmov.banco_cod AS banco_cod,
+  Tesmov.banco_ctacte AS banco_ctacte,
+  Tesmov.Centro AS Centro_cod,
+  Tesmov.item AS Item_cod,
+  Tesmov.cod_moneda AS cod_moneda,
+  Tesmov.tcambio_ad AS tcambio_ad,
+
+  -- Nuevas columnas relacionadas con flujo y monedas alternativas
+  Tesmov.Debe_moneda2 AS Debe_moneda2,
+  Tesmov.Haber_moneda2 AS Haber_moneda2,
+  Tesmov.Flujo AS Flujo,
+  Tesmov.FolioCiclo AS FolioCiclo,
+
+  -- Glosas
+  Tesmov_e.Glosa AS Glosa_e,
+  COALESCE(Tesmov.Glosa, Tesmov_e.Glosa) AS Glosalin,
+
+  -- Información de auditoría
+  Tesmov.log_usuario_c AS log_usuario_c,
+  TIMESTAMP(Tesmov.log_fecha_c) AS log_fecha_c,
+  Tesmov.log_usuario AS log_usuario_m,
+  TIMESTAMP(Tesmov.log_fecha) AS log_fecha_m,
+
+  -- Enriquecimiento con uniones
+  COALESCE(Flex_rut.nombre, '') AS Rut_nom,
+  COALESCE(Flex_tipdoc.Des, '') AS Tipdoc_des,
+  COALESCE(Flex_costos.Des, '') AS Centro_des,
+  COALESCE(Flex_item.des, '') AS Item_des,
+
+  -- Tiempos de auditoría
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
+  NULL AS AUDIT_UPDATE_DTTM
+
+FROM
+  `dataset_silver.tesmov_e_silver` AS Tesmov_e
+LEFT JOIN
+  `dataset_silver.tesmov_silver` AS Tesmov
+  ON Tesmov.ano = Tesmov_e.ano
+  AND Tesmov.Rut_Empresa = Tesmov_e.Rut_Empresa
+  AND Tesmov.Tipo_Doc = Tesmov_e.Tipo_Doc
+  AND Tesmov.Num_Doc = Tesmov_e.Num_Doc
+LEFT JOIN
+  `dataset_silver.documentos_silver` AS Documentos
+  ON Tesmov_e.Rut_Empresa = Documentos.Empresa
+  AND Tesmov_e.Tipo_Doc = Documentos.Cod
+LEFT JOIN
+  `dataset_silver.planctas_silver` AS Planctas
+  ON Tesmov_e.Rut_Empresa = Planctas.Empresa
+  AND Tesmov.Cuenta = Planctas.Cuenta
+LEFT JOIN
+  `dataset_silver.flex_rut_silver` AS Flex_rut
+  ON Tesmov_e.Rut_Empresa = Flex_rut.Empresa
+  AND Tesmov.Rut = Flex_rut.Rut
+LEFT JOIN
+  `dataset_silver.flex_tipdoc_silver` AS Flex_tipdoc
+  ON Tesmov_e.Rut_Empresa = Flex_tipdoc.Empresa
+  AND Tesmov.Tipdoc_ctacte = Flex_tipdoc.Cod
+LEFT JOIN
+  `dataset_silver.flex_costos_silver` AS Flex_costos
+  ON Tesmov_e.Rut_Empresa = Flex_costos.Empresa
+  AND Tesmov.Centro = Flex_costos.Cod
+LEFT JOIN
+  `dataset_silver.flex_item_silver` AS Flex_item
+  ON Tesmov_e.Rut_Empresa = Flex_item.Empresa
+  AND Tesmov.item = Flex_item.Cod
+
+WHERE
+  Tesmov_e.Rut_Empresa = '760665398'
+  AND Tesmov_e.Tipo_Doc <> ''
+  AND (Documentos.atrib2 = 0 OR Documentos.atrib2 = 2)
+  AND (Documentos.Clase <> 9 OR Documentos.Clase IS NULL)
+  AND PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', Tesmov_e.Fecha_Doc) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)
