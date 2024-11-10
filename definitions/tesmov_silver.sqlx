@@ -61,7 +61,7 @@ SELECT
   Marcado,
   Glosa,
   Referencia1,
-  Lote,
+  SAFE_CAST(Lote AS INT64) AS Lote,
   Cod_clasificador1,
   Cod_clasificador2,
   Cod_clasificador3,

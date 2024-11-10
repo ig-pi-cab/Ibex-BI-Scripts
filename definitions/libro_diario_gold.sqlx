@@ -5,15 +5,14 @@ config {
   bigquery: {
     partitionBy: "AUDIT_INSERT_DTTM",
     updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
-  },
-  uniqueKey: ["cabeza_clave1", "detalle_clave1", "Tipo_Doc_Encabezado", "Num_Doc", "Linea"]
+  }
 }
 
 SELECT
   CURRENT_TIMESTAMP() AS FechaReporte,
 
 --   -- Identificadores principales
-Tesmov_e.clave1 AS cabeza_clave1,
+  Tesmov_e.clave1 AS cabeza_clave1,
   Tesmov.clave1 AS detalle_clave1,
 --   Tesmov_e.ano AS Ejercicio,
 
