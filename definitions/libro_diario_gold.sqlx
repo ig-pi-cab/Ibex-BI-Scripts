@@ -1,27 +1,95 @@
 config {
-  type: "incremental",
-  schema: "dataset_gold",
-  name: "libro_diario_gold",
-  bigquery: {
-    partitionBy: "AUDIT_INSERT_DTTM",
-    updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
-  }
+    type: "incremental",
+    schema: "dataset_gold",
+    name: "libro_diario_gold",
+    bigquery: {
+        partitionBy: "AUDIT_INSERT_DTTM",
+        updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
+    },
+    uniqueKey: ["cabeza_clave1", "detalle_clave1", "Tipo_Doc_Encabezado", "Num_Doc", "Linea"]
 }
 
 SELECT
-  CURRENT_TIMESTAMP() AS FechaReporte,
   Tesmov_e.clave1 AS cabeza_clave1,
-  Tesmov.clave1 AS detalle_clave1,
-Tesmov_e.Tipo_Doc AS Tipo_Doc_Encabezado,
+  CAST(Tesmov.clave1 AS STRING) AS detalle_clave1,
+  SAFE_CAST(Tesmov_e.ano AS STRING) AS Ejercicio,
+  Tesmov.Cuenta AS Cuenta,
+  Planctas.Des AS Cuenta_des,
+  Tesmov.debe AS Debe,
+  Tesmov.haber AS Haber,
+  IFNULL(Tesmov.Debe, 0) - IFNULL(Tesmov.Haber, 0) AS Saldo,
+  Tesmov.Concepto,
+  Tesmov.Rut,
+  TESMOV.Tipdoc_ctacte AS Tipdoc,
+  SAFE_CAST(TESMOV.Numdoc_ctacte AS FLOAT64) AS NumDoc,
+  TESMOV.Vence_ctacte AS Vence,
+  TESMOV.banco_cod,
+  TESMOV.banco_ctacte,
+  TESMOV.Centro AS Centro_cod,
+  tesmov.item AS Item_cod,
+  tesmov.cod_moneda,
+  tesmov.tcambio_ad,
+  TESMOV_E.Tipo_Doc AS Tipo_Doc,
+  Tesmov_e.Glosa AS Glosa_e,
+  CASE
+    WHEN TESMOV.Glosa = '' THEN tesmov_e.glosa
+    ELSE tesmov.glosa
+  END AS Glosalin,
+  tesmov.log_usuario_c,
+  tesmov.log_fecha_c,
+  tesmov.log_usuario AS Log_usuario_m,
+  tesmov.log_fecha AS Log_fecha_m,
+  Tesmov_e.Tipo_Doc AS Tipo_Doc_Encabezado,
+  Tesmov.Tipo_Doc AS Tipo_Doc_Detalle,
+  SAFE_CAST(Tesmov_e.Num_Doc AS FLOAT64) AS Num_Doc,
+  Tesmov.linea AS Linea,
+  Tesmov.Fecha_Doc AS Fecha_Doc,
+  Tesmov.Debe_moneda2 AS Debe_moneda2,
+  Tesmov.Haber_moneda2 AS Haber_moneda2,
+  Tesmov.Flujo as Flujo,
+  Tesmov.FolioCiclo as FolioCiclo,
 
-Tesmov_e.Num_Doc AS Num_Doc,
-Tesmov.linea AS Linea
+  -- New Columns
+  IFNULL(Flex_rut.nombre, '') AS Rut_nom,
+  IFNULL(Flex_tipdoc.Des, '') AS Tipdoc_des,
+  IFNULL(Flex_costos.Des, '') AS Centro_des,
+  IFNULL(Flex_item.des, '') AS Item_des,
 
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
+   CASE
+    WHEN CURRENT_TIMESTAMP() > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 SECOND) THEN CURRENT_TIMESTAMP()
+    ELSE NULL
+  END AS AUDIT_UPDATE_DTTM
 FROM
   `dataset_silver.tesmov_e_silver` AS Tesmov_e
 LEFT JOIN
   `dataset_silver.tesmov_silver` AS Tesmov
-  ON Tesmov.ano = Tesmov_e.ano
-  AND Tesmov.Rut_Empresa = Tesmov_e.Rut_Empresa
+ON
+  SAFE_CAST(Tesmov.ano AS STRING) = SAFE_CAST(Tesmov_e.ano AS STRING)
+  AND SAFE_CAST(Tesmov.Num_Doc AS FLOAT64) = SAFE_CAST(Tesmov_e.Num_Doc AS FLOAT64)
   AND Tesmov.Tipo_Doc = Tesmov_e.Tipo_Doc
-  AND Tesmov.Num_Doc = Tesmov_e.Num_Doc
+  AND Tesmov.Rut_Empresa = Tesmov_e.Rut_Empresa
+LEFT JOIN
+  `dataset_silver.planctas_silver` AS Planctas
+ON
+  Tesmov.Cuenta = Planctas.Cuenta
+LEFT JOIN
+  `dataset_silver.flex_rut_silver` AS Flex_rut
+ON
+  Tesmov.Rut_Empresa = Flex_rut.Empresa
+  AND Tesmov.Rut = Flex_rut.Rut
+LEFT JOIN
+  `dataset_silver.flex_tipdoc_silver` AS Flex_tipdoc
+ON
+  Tesmov.Rut_Empresa = Flex_tipdoc.Empresa
+  AND Tesmov.Tipdoc_ctacte = Flex_tipdoc.Cod
+LEFT JOIN
+  `dataset_silver.flex_costos_silver` AS Flex_costos
+ON
+  Tesmov.Rut_Empresa = Flex_costos.Empresa
+  AND Tesmov.Centro = Flex_costos.Cod
+LEFT JOIN
+  `dataset_silver.flex_item_silver` AS Flex_item
+ON
+  Tesmov.Rut_Empresa = Flex_item.Empresa
+  AND Tesmov.Item = Flex_item.Cod
