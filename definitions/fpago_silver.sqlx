@@ -10,17 +10,17 @@ config {
 }
 
 SELECT
-  id_fpago,
-  Empresa,
-  Cod,
-  Des,
-  Cuenta,
-  Item,
-  CCosto,
-  Aux1,
-  Tipo,
-  Debe_haber,
-  SAFE_CAST(Factor AS INT64) AS Factor,
+  CASE WHEN id_fpago IS NULL OR id_fpago = "NULL" THEN "" ELSE id_fpago END AS id_fpago,
+  CASE WHEN Empresa IS NULL OR Empresa = "NULL" THEN "" ELSE Empresa END AS Empresa,
+  CASE WHEN Cod IS NULL OR Cod = "NULL" THEN "" ELSE Cod END AS Cod,
+  CASE WHEN Des IS NULL OR Des = "NULL" THEN "" ELSE Des END AS Des,
+  CASE WHEN Cuenta IS NULL OR Cuenta = "NULL" THEN "" ELSE Cuenta END AS Cuenta,
+  CASE WHEN Item IS NULL OR Item = "NULL" THEN "" ELSE Item END AS Item,
+  CASE WHEN CCosto IS NULL OR CCosto = "NULL" THEN "" ELSE CCosto END AS CCosto,
+  CASE WHEN Aux1 IS NULL OR Aux1 = "NULL" THEN "" ELSE Aux1 END AS Aux1,
+  CASE WHEN Tipo IS NULL OR Tipo = "NULL" THEN "" ELSE Tipo END AS Tipo,
+  CASE WHEN Debe_haber IS NULL OR Debe_haber = "NULL" THEN "" ELSE Debe_haber END AS Debe_haber,
+  SAFE_CAST(CASE WHEN Factor IS NULL OR Factor = "NULL" THEN NULL ELSE Factor END AS INT64) AS Factor,
   CASE WHEN Banco = "1" THEN TRUE WHEN Banco = "0" THEN FALSE ELSE NULL END AS Banco,    
   CASE WHEN Pide_ctabanco = "1" THEN TRUE WHEN Pide_ctabanco = "0" THEN FALSE ELSE NULL END AS Pide_ctabanco,
   CASE WHEN Pide_Nro_doc = "1" THEN TRUE WHEN Pide_Nro_doc = "0" THEN FALSE ELSE NULL END AS Pide_Nro_doc,
@@ -32,17 +32,16 @@ SELECT
   CASE WHEN Pide_crednum = "1" THEN TRUE WHEN Pide_crednum = "0" THEN FALSE ELSE NULL END AS Pide_crednum,
   CASE WHEN Pide_credfec = "1" THEN TRUE WHEN Pide_credfec = "0" THEN FALSE ELSE NULL END AS Pide_credfec,
   CASE WHEN Pide_credctacte = "1" THEN TRUE WHEN Pide_credctacte = "0" THEN FALSE ELSE NULL END AS Pide_credctacte,
-  Atrib1,
-  SAFE_CAST(Atrib2 AS FLOAT64) AS Atrib2,
-  SAFE_CAST(Log_fecha AS DATETIME) AS Log_fecha,
-  Log_user,
-  SAFE_CAST(Cod_cb AS INT64) AS Cod_cb,
-  SAFE_CAST(Pide_detalle_Productos AS INT64) AS Pide_detalle_Productos,
-  SAFE_CAST(Gestionacheque AS FLOAT64) AS Gestionacheque,
+  CASE WHEN Atrib1 IS NULL OR Atrib1 = "NULL" THEN "" ELSE Atrib1 END AS Atrib1,
+  SAFE_CAST(CASE WHEN Atrib2 IS NULL OR Atrib2 = "NULL" THEN NULL ELSE Atrib2 END AS FLOAT64) AS Atrib2,
+  SAFE_CAST(CASE WHEN Log_fecha IS NULL OR Log_fecha = "NULL" THEN NULL ELSE Log_fecha END AS DATETIME) AS Log_fecha,
+  CASE WHEN Log_user IS NULL OR Log_user = "NULL" THEN "" ELSE Log_user END AS Log_user,
+  SAFE_CAST(CASE WHEN Cod_cb IS NULL OR Cod_cb = "NULL" THEN NULL ELSE Cod_cb END AS INT64) AS Cod_cb,
+  SAFE_CAST(CASE WHEN Pide_detalle_Productos IS NULL OR Pide_detalle_Productos = "NULL" THEN NULL ELSE Pide_detalle_Productos END AS INT64) AS Pide_detalle_Productos,
+  SAFE_CAST(CASE WHEN Gestionacheque IS NULL OR Gestionacheque = "NULL" THEN NULL ELSE Gestionacheque END AS FLOAT64) AS Gestionacheque,
   CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
   CASE WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP() ELSE NULL END AS AUDIT_UPDATE_DTTM
 FROM
   `hvr-dwh-dev-437001.dataset_bronze.fpago_bronze`
 WHERE
   AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)
-  AND Empresa IS NOT NULL

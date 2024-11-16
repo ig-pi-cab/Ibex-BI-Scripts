@@ -4,38 +4,75 @@ config {
     name: "bancos_silver",
     bigquery: {
         partitionBy: "AUDIT_INSERT_DTTM",
-        updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)"
+        updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
     },
-    uniqueKey: ["id_Bancos"]
-
+    uniqueKey: ["ID_Bancos"]
 }
 
 SELECT
-  ID_Bancos,
-  COALESCE(Empresa, "Desconocida") AS Empresa,
-  Cod AS Cod,
-  Des AS Des,
-  Tipo AS Tipo,
-  RutLeg AS RutLeg,
-  Cod_inten AS Cod_inten,
-  Suc_bco AS Suc_bco,
-  Comuna AS Comuna,
-  Direccion AS Direccion,
-  Telefono AS Telefono,
-  Contacto AS Contacto,
-  Carg_con AS Carg_con,
-  Item,
-  Marca AS Marca,
-  Cuenta AS Cuenta,
-  Log_usr AS Log_usr,
-  SAFE_CAST(Log_fec AS DATETIME) AS Log_fec,
-  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM, 
+  CASE
+    WHEN ID_Bancos IS NULL OR ID_Bancos = "NULL" THEN "" ELSE ID_Bancos
+  END AS ID_Bancos,
+  CASE
+    WHEN Empresa IS NULL OR Empresa = "NULL" THEN "" ELSE Empresa
+  END AS Empresa,
+  CASE
+    WHEN Cod IS NULL OR Cod = "NULL" THEN "" ELSE Cod
+  END AS Cod,
+  CASE
+    WHEN Des IS NULL OR Des = "NULL" THEN "" ELSE Des
+  END AS Des,
+  CASE
+    WHEN Tipo IS NULL OR Tipo = "NULL" THEN "" ELSE Tipo
+  END AS Tipo,
+  CASE
+    WHEN RutLeg IS NULL OR RutLeg = "NULL" THEN "" ELSE RutLeg
+  END AS RutLeg,
+  CASE
+    WHEN Cod_inten IS NULL OR Cod_inten = "NULL" THEN "" ELSE Cod_inten
+  END AS Cod_inten,
+  CASE
+    WHEN Suc_bco IS NULL OR Suc_bco = "NULL" THEN "" ELSE Suc_bco
+  END AS Suc_bco,
+  CASE
+    WHEN Comuna IS NULL OR Comuna = "NULL" THEN "" ELSE Comuna
+  END AS Comuna,
+  CASE
+    WHEN Direccion IS NULL OR Direccion = "NULL" THEN "" ELSE Direccion
+  END AS Direccion,
+  CASE
+    WHEN Telefono IS NULL OR Telefono = "NULL" THEN "" ELSE Telefono
+  END AS Telefono,
+  CASE
+    WHEN Contacto IS NULL OR Contacto = "NULL" THEN "" ELSE Contacto
+  END AS Contacto,
+  CASE
+    WHEN Carg_con IS NULL OR Carg_con = "NULL" THEN "" ELSE Carg_con
+  END AS Carg_con,
+  CASE
+    WHEN Item IS NULL OR Item = "NULL" THEN "" ELSE Item
+  END AS Item,
+  CASE
+    WHEN Marca IS NULL OR Marca = "NULL" THEN "" ELSE Marca
+  END AS Marca,
+  CASE
+    WHEN Cuenta IS NULL OR Cuenta = "NULL" THEN "" ELSE Cuenta
+  END AS Cuenta, 
+  CASE
+    WHEN Log_usr IS NULL OR Log_usr = "NULL" THEN "" ELSE Log_usr
+  END AS Log_usr,
+  SAFE_CAST(
+    CASE
+      WHEN Log_fec IS NULL OR Log_fec = "NULL" THEN "1970-01-01T00:00:00"
+      ELSE Log_fec
+    END AS DATETIME
+  ) AS Log_fec,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
   CASE
     WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()
     ELSE NULL
-END
-  AS AUDIT_UPDATE_DTTM
+  END AS AUDIT_UPDATE_DTTM
 FROM
   `dataset_bronze.bancos_bronze`
 WHERE
-  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)
+  AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)

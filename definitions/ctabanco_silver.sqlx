@@ -1,40 +1,28 @@
 config {
-
     type: "incremental",
     schema: "dataset_silver",
     name: "ctabancos_silver",
     bigquery: {
         partitionBy: "AUDIT_INSERT_DTTM",
-        updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)"
+        updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
     },
     uniqueKey: ["id_Ctabancos"]
 }
 
 SELECT
-  id_Ctabancos,
-  --Selecciona el identificador único de la cuenta bancaria
-  Cod,
-  -- Selecciona el código asociado al registro
-  Des,
-  -- Selecciona la descripción de la cuenta bancaria
-  cuenta_contable,
-  -- Selecciona la cuenta contable asociada
-  usuario,
-  -- Selecciona el usuario que realizó la operación
-  SAFE_CAST(fechora AS DATETIME) AS fechora,
-  -- Convierte 'fechora' a DATETIME, usando SAFE_CAST para manejar valores inválidos
-  Rut_Empresa,
-  -- Selecciona el identificador de la empresa
+  CASE WHEN id_Ctabancos IS NULL OR id_Ctabancos = "NULL" THEN "" ELSE id_Ctabancos END AS id_Ctabancos,
+  CASE WHEN Cod IS NULL OR Cod = "NULL" THEN "" ELSE Cod END AS Cod,
+  CASE WHEN Des IS NULL OR Des = "NULL" THEN "" ELSE Des END AS Des,
+  CASE WHEN cuenta_contable IS NULL OR cuenta_contable = "NULL" THEN "" ELSE cuenta_contable END AS cuenta_contable,
+  CASE WHEN usuario IS NULL OR usuario = "NULL" THEN "" ELSE usuario END AS usuario,
+  SAFE_CAST(CASE WHEN fechora IS NULL OR fechora = "NULL" THEN NULL ELSE fechora END AS DATETIME) AS fechora,
+  CASE WHEN Rut_Empresa IS NULL OR Rut_Empresa = "NULL" THEN "" ELSE Rut_Empresa END AS Rut_Empresa,
   CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
-  -- Registra la fecha y hora de la operación de inserción
   CASE
-  -- Establece 'AUDIT_UPDATE_DTTM' a la fecha actual si el registro fue modificado, considerando solo la fecha sin la hora
     WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()
     ELSE NULL
-END
-  AS AUDIT_UPDATE_DTTM
+  END AS AUDIT_UPDATE_DTTM
 FROM
   `hvr-dwh-dev-437001.dataset_bronze.ctabancos_bronze`
 WHERE
-  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)
-  -- Tabla de origen desde la cual se están leyendo los datos
+  AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)
