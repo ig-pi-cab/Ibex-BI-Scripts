@@ -53,7 +53,7 @@ Ibex-BI-Scripts/
 
 - **Control de cambios:** Mantén un registro detallado de las modificaciones.
 - **Colaboración en equipo:** Revisión y seguimiento de cambios mediante pull requests.
-- **Optimización de procesos ETL:** Diseño de pipelines robustos y eficientes.
+- **Optimización de procesos ELT:** Diseño de pipelines robustos y eficientes.
 - **Visualización clara:** Generación de insights listos para análisis empresarial.
 
 ---
