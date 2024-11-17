@@ -1,6 +1,6 @@
 {
   "defaultDatabase": "hvr-dwh-dev-437001",
-  "defaultSchema": "dataset_silver_test",
+  "defaultSchema": "dataset_silver",
   "schedule": {
     "type": "daily",
     "time": "03:00"
