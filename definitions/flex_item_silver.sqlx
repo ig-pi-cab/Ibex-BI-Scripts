@@ -19,7 +19,12 @@ SELECT
   SAFE_CAST(CASE WHEN Atrib3 IS NULL OR Atrib3 = "NULL" THEN NULL ELSE Atrib3 END AS FLOAT64) AS Atrib3,
   CASE WHEN Cuenta IS NULL OR Cuenta = "NULL" THEN "" ELSE Cuenta END AS Cuenta,
   CASE WHEN Aux1 IS NULL OR Aux1 = "NULL" THEN "" ELSE Aux1 END AS Aux1,
-  CASE WHEN SSMA_TimeStamp IS NULL OR SSMA_TimeStamp = "NULL" THEN NULL ELSE SSMA_TimeStamp END AS SSMA_TimeStamp,
+    SAFE_CAST(
+    CASE
+        WHEN SSMA_TimeStamp IS NULL OR SSMA_TimeStamp = "NULL" THEN NULL
+        ELSE CAST(SSMA_TimeStamp as BYTES)
+    END AS BYTES
+    ) AS SSMA_TimeStamp,
   CASE WHEN Clase_doc1 IS NULL OR Clase_doc1 = "NULL" THEN "" ELSE Clase_doc1 END AS Clase_doc1,
   CASE WHEN Clase_doc2 IS NULL OR Clase_doc2 = "NULL" THEN "" ELSE Clase_doc2 END AS Clase_doc2,
   CASE WHEN Clase_doc3 IS NULL OR Clase_doc3 = "NULL" THEN "" ELSE Clase_doc3 END AS Clase_doc3,
