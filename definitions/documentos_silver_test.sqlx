@@ -1,16 +1,16 @@
 config {
   type: "incremental",
   schema: "dataset_silver",
-  name: "documentos_silver_test",
+  name: "documentos_test_silver",
   bigquery: {
     partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
     updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
   },
-  uniqueKey: ["id_documentos"]
+  uniqueKey: ["ID_documentos_test"]
 }
 
 SELECT
-  CASE WHEN id_documentos IS NULL OR id_documentos = "NULL" THEN "" ELSE id_documentos END AS id_documentos,
+  CASE WHEN ID_documentos_test IS NULL OR ID_documentos_test = "NULL" THEN "" ELSE ID_documentos_test END AS ID_documentos_test,
   CASE WHEN Empresa IS NULL OR Empresa = "NULL" THEN "Desconocido" ELSE Empresa END AS Empresa,
   CASE WHEN Cod IS NULL OR Cod = "NULL" THEN "" ELSE Cod END AS Cod,
   SAFE_CAST(CASE WHEN Centraliza IS NULL OR Centraliza = "NULL" THEN NULL ELSE Centraliza END AS BOOL) AS Centraliza,
@@ -39,6 +39,6 @@ SELECT
     ELSE NULL
   END AS AUDIT_UPDATE_DTTM
 FROM
-  `hvr-dwh-dev-437001.dataset_bronze.documentos_bronze_test`
+  `hvr-dwh-dev-437001.dataset_bronze.documentos_test_bronze`
 WHERE
   AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)
