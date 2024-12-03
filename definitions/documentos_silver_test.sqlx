@@ -1,0 +1,44 @@
+config {
+  type: "incremental",
+  schema: "dataset_silver",
+  name: "documentos_silver_test",
+  bigquery: {
+    partitionBy: "TIMESTAMP_TRUNC(AUDIT_INSERT_DTTM, DAY)",
+    updatePartitionFilter: "AUDIT_INSERT_DTTM >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 31 DAY)"
+  },
+  uniqueKey: ["id_documentos"]
+}
+
+SELECT
+  CASE WHEN id_documentos IS NULL OR id_documentos = "NULL" THEN "" ELSE id_documentos END AS id_documentos,
+  CASE WHEN Empresa IS NULL OR Empresa = "NULL" THEN "Desconocido" ELSE Empresa END AS Empresa,
+  CASE WHEN Cod IS NULL OR Cod = "NULL" THEN "" ELSE Cod END AS Cod,
+  SAFE_CAST(CASE WHEN Centraliza IS NULL OR Centraliza = "NULL" THEN NULL ELSE Centraliza END AS BOOL) AS Centraliza,
+  CASE WHEN Atrib1 IS NULL OR Atrib1 = "NULL" THEN "" ELSE Atrib1 END AS Atrib1,
+  SAFE_CAST(CASE WHEN Atrib2 IS NULL OR Atrib2 = "NULL" THEN NULL ELSE Atrib2 END AS FLOAT64) AS Atrib2,
+  SAFE_CAST(CASE WHEN Atrib3 IS NULL OR Atrib3 = "NULL" THEN NULL ELSE Atrib3 END AS BOOL) AS Atrib3,
+  SAFE_CAST(CASE WHEN Atrib4 IS NULL OR Atrib4 = "NULL" THEN NULL ELSE Atrib4 END AS BOOL) AS Atrib4,
+  SAFE_CAST(CASE WHEN Atrib5 IS NULL OR Atrib5 = "NULL" THEN NULL ELSE Atrib5 END AS BOOL) AS Atrib5,
+  SAFE_CAST(CASE WHEN Atrib6 IS NULL OR Atrib6 = "NULL" THEN NULL ELSE Atrib6 END AS BOOL) AS Atrib6,
+  CASE WHEN Cuenta IS NULL OR Cuenta = "NULL" THEN "" ELSE Cuenta END AS Cuenta,
+  CASE WHEN Aux1 IS NULL OR Aux1 = "NULL" THEN "" ELSE Aux1 END AS Aux1,
+  CASE WHEN Origen IS NULL OR Origen = "NULL" THEN "" ELSE Origen END AS Origen,
+  SAFE_CAST(CASE WHEN Clase IS NULL OR Clase = "NULL" THEN NULL ELSE Clase END AS INT64) AS Clase,
+  SAFE_CAST(CASE WHEN Tipo_foliacion IS NULL OR Tipo_foliacion = "NULL" THEN NULL ELSE Tipo_foliacion END AS INT64) AS Tipo_foliacion,
+  SAFE_CAST(CASE WHEN SSMA_TimeStamp IS NULL OR SSMA_TimeStamp = "NULL" THEN NULL ELSE SSMA_TimeStamp END AS BYTES) AS SSMA_TimeStamp,
+  CASE WHEN Clase_doc1 IS NULL OR Clase_doc1 = "NULL" THEN "" ELSE Clase_doc1 END AS Clase_doc1,
+  CASE WHEN Clase_doc2 IS NULL OR Clase_doc2 = "NULL" THEN "" ELSE Clase_doc2 END AS Clase_doc2,
+  CASE WHEN Clase_doc3 IS NULL OR Clase_doc3 = "NULL" THEN "" ELSE Clase_doc3 END AS Clase_doc3,
+  SAFE_CAST(CASE WHEN Cod_clase1 IS NULL OR Cod_clase1 = "NULL" THEN NULL ELSE Cod_clase1 END AS INT64) AS Cod_clase1,
+  SAFE_CAST(CASE WHEN Cod_clase2 IS NULL OR Cod_clase2 = "NULL" THEN NULL ELSE Cod_clase2 END AS INT64) AS Cod_clase2,
+  SAFE_CAST(CASE WHEN Cod_clase3 IS NULL OR Cod_clase3 = "NULL" THEN NULL ELSE Cod_clase3 END AS INT64) AS Cod_clase3,
+  SAFE_CAST(CASE WHEN Extracontab1 IS NULL OR Extracontab1 = "NULL" THEN NULL ELSE Extracontab1 END AS FLOAT64) AS Extracontab1,
+  CURRENT_TIMESTAMP() AS AUDIT_INSERT_DTTM,
+  CASE
+    WHEN AUDIT_INSERT_DTTM < CURRENT_TIMESTAMP() THEN CURRENT_TIMESTAMP()
+    ELSE NULL
+  END AS AUDIT_UPDATE_DTTM
+FROM
+  `hvr-dwh-dev-437001.dataset_bronze.documentos_bronze_test`
+WHERE
+  AUDIT_INSERT_DTTM >= TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -31 DAY)
